@@ -51,7 +51,20 @@ class GateDetection:
     
 
     def send_serial(self, rvecs, tvecs):
-        
+        axis = rvecs
+        angle = (axis[0] ** 2 + axis[1] **2 + axis[2]**2) * 0.5
+
+        # This code lifted from pyquaternion from_axis_angle:
+        mag_sq = axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]
+        if (abs(1.0 - mag_sq) > 1e-12): 
+            axis = axis / (mag_sq ** 0.5)
+        theta = angle / 2.0
+        r = math.cos(theta)
+        i = axis * math.sin(theta)  
+
+        jevois.sendSerial("{} {} {} {} {} {}".
+                          format(np.asscalar(tvecs[0]), np.asscalar(tvecs[1]), np.asscalar(tvecs[2]), 
+                                np.asscalar(i[0]), np.asscalar(i[1]), np.asscalar(i[2])))
 
 
     def processNoUSB(self, inframe):
